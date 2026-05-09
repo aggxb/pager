@@ -1,0 +1,43 @@
+# --- Estrutura do Projeto ---
+pager-api/HELP.md
+**/target/
+**/build/
+.mvn/wrapper/maven-wrapper.jar
+
+# --- IntelliJ IDEA ---
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# --- VS Code ---
+.vscode/
+
+# --- STS / Eclipse ---
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# --- NetBeans ---
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# --- Logs e Infraestrutura (Docker) ---
+mosquitto/log/
+mosquitto/data/
+*.log
+
+# --- Sistema Operacional ---
+.DS_Store
+Thumbs.db
+
+# --- Notas ---
+PLAN.md

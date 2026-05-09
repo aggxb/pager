@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: pager-api
+  datasource:
+    url: jdbc:postgresql://localhost:5432/pager_system
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+mqtt:
+  broker_url: tcp://localhost:1883
+  client-id: pager-backend-api
+  topic: delivery/pager/command
