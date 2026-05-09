@@ -39,5 +39,6 @@ mosquitto/data/
 .DS_Store
 Thumbs.db
 
-# --- Notas ---
+# --- Extras ---
 PLAN.md
+/pager-api/gemini-back.txt
