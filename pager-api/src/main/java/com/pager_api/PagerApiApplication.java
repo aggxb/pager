@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class PagerApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PagerApiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PagerApiApplication.class, args);
+    }
 
 }
