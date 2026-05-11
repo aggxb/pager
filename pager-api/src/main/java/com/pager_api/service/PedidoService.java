@@ -9,7 +9,9 @@ import com.pager_api.mapper.PedidoMapper;
 import com.pager_api.repository.PedidoRepository;
 import com.pager_api.util.CurrencyFormatter;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +33,11 @@ public class PedidoService {
 
     public PedidoResponse save(PedidoPostRequest pedidoPostRequest) {
         var refeicao = Refeicao.fromId(pedidoPostRequest.refeicaoId());
+
+        if (refeicao == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Refeição com ID " + pedidoPostRequest.refeicaoId() + " não encontrada");
+        }
+
         var pedido = mapper.toPedido(pedidoPostRequest);
         pedido.setRefeicao(refeicao);
 
