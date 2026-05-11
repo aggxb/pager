@@ -4,6 +4,7 @@ import com.pager_api.dto.request.PedidoPostRequest;
 import com.pager_api.dto.response.PedidoResponse;
 import com.pager_api.dto.response.RefeicaoResponse;
 import com.pager_api.service.PedidoService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,7 @@ public class PedidoController {
     }
 
     @PostMapping
-    public ResponseEntity<PedidoResponse> save(@RequestBody PedidoPostRequest pedidoPostRequest) {
+    public ResponseEntity<PedidoResponse> save(@Valid @RequestBody PedidoPostRequest pedidoPostRequest) {
         log.info("Request to save a new order");
 
         var pedido = service.save(pedidoPostRequest);
