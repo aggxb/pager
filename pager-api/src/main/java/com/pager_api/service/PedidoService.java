@@ -2,11 +2,14 @@ package com.pager_api.service;
 
 import com.pager_api.dto.request.PedidoPostRequest;
 import com.pager_api.dto.response.PedidoResponse;
+import com.pager_api.dto.response.RefeicaoResponse;
+import com.pager_api.enums.Refeicao;
 import com.pager_api.mapper.PedidoMapper;
 import com.pager_api.repository.PedidoRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @AllArgsConstructor
@@ -24,12 +27,22 @@ public class PedidoService {
     }
 
     public PedidoResponse save(PedidoPostRequest pedidoPostRequest) {
+        var refeicao = Refeicao.fromId(pedidoPostRequest.refeicaoId());
         var pedido = mapper.toPedido(pedidoPostRequest);
+        pedido.setRefeicao(refeicao);
 
         var pedidoSalvo = repository.save(pedido);
 
-        var pedidoReponse = mapper.toPedidoResponse(pedidoSalvo);
+        var pedidoResponse = mapper.toPedidoResponse(pedidoSalvo);
 
-        return pedidoReponse;
+        return pedidoResponse;
+    }
+
+    public List<RefeicaoResponse> getAllMeals() {
+        var refeicoesList = Arrays.stream(Refeicao.values()).
+                map(refeicao -> mapper.toRefeicaoResponse(refeicao))
+                .toList();
+
+        return refeicoesList;
     }
 }

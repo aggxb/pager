@@ -15,6 +15,15 @@ spring:
       hibernate:
         format_sql: true
 
+server:
+  error:
+    include-stacktrace: never
+
+logging:
+  level:
+    com.aggxb.subtrackr: debug
+    org.hibernate.orm.jdbc.bind: trace
+
 mqtt:
   broker_url: tcp://localhost:1883
   client-id: pager-backend-api
