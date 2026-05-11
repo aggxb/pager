@@ -1,9 +1,11 @@
 package com.pager_api.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 @Getter
 @AllArgsConstructor
@@ -14,7 +16,15 @@ public enum Refeicao {
     BOLO(4L, "Bolo de Chocolate (Fatia)", new BigDecimal("17.99")),
     REFRIGERANTE(5L, "Refrigerante de 2 Litros", new BigDecimal("15.99"));
 
-    public final Long id;
-    public final String descricao;
-    public final BigDecimal preco;
+    private final Long id;
+    private final String descricao;
+    private final BigDecimal preco;
+
+    @JsonCreator
+    public static Refeicao fromId(Long id) {
+        return Arrays.stream(Refeicao.values()).
+                filter(refeicao -> refeicao.id.equals(id))
+                .findFirst()
+                .orElse(null);
+    }
 }
