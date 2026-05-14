@@ -11,3 +11,15 @@ export interface Pedido {
   preco: number;
   dataCriacao: string;
 }
+
+export interface PedidoGet {
+  id: number;
+  nomeCliente: string;
+  refeicao: Refeicao;
+  dataCriacao: string;
+}
+
+export interface PedidoPost {
+  nomeCliente: string;
+  refeicaoId: number;
+}

@@ -7,7 +7,12 @@ type InputProps = React.ComponentProps<'input'> & {
   icon?: LucideIcon;
 };
 
-const InputField = ({ label, placeholder, icon: Icon }: InputProps) => {
+const InputField = ({
+  label,
+  placeholder,
+  icon: Icon,
+  ...props
+}: InputProps) => {
   return (
     <TextField>
       <Label>{label}</Label>
@@ -17,7 +22,7 @@ const InputField = ({ label, placeholder, icon: Icon }: InputProps) => {
             <Icon />
           </InputGroup.Prefix>
         )}
-        <InputGroup.Input placeholder={placeholder} />
+        <InputGroup.Input placeholder={placeholder} {...props} />
       </InputGroup>
     </TextField>
   );
