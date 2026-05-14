@@ -2,6 +2,10 @@ import { EmptyState, Pagination, Table } from '@heroui/react';
 import { ArchiveX } from 'lucide-react';
 import React from 'react';
 import type { Pedido } from '../types/types';
+import { pedidoService } from '../service/pedido';
+import { useQuery } from '@tanstack/react-query';
+import { formatLocalDateTime } from '../util/dateFormatter';
+import { formatCurrencyBRL } from '../util/currencyFormatter';
 
 const columns = [
   { id: 'id', name: 'ID do Pedido' },
@@ -11,68 +15,26 @@ const columns = [
   { id: 'dataCriacao', name: 'Data do Pedido' },
 ];
 
-const rows: Pedido[] = [
-  {
-    id: 1,
-    nomeCliente: 'Gabriel',
-    refeicao: 'Hamburger',
-    preco: 29.99,
-    dataCriacao: '13/05/2026 - 23:47',
-  },
-  {
-    id: 2,
-    nomeCliente: 'Augusto',
-    refeicao: 'Hamburger',
-    preco: 29.99,
-    dataCriacao: '13/05/2026 - 23:48',
-  },
-  {
-    id: 3,
-    nomeCliente: 'Santos',
-    refeicao: 'Hamburger',
-    preco: 29.99,
-    dataCriacao: '13/05/2026 - 23:49',
-  },
-  {
-    id: 4,
-    nomeCliente: 'Andrey',
-    refeicao: 'Hamburger',
-    preco: 29.99,
-    dataCriacao: '13/05/2026 - 23:46',
-  },
-  {
-    id: 5,
-    nomeCliente: 'Gabriel',
-    refeicao: 'Hamburger',
-    preco: 29.99,
-    dataCriacao: '13/05/2026 - 23:45',
-  },
-  {
-    id: 6,
-    nomeCliente: 'Augusto',
-    refeicao: 'Hamburger',
-    preco: 29.99,
-    dataCriacao: '13/05/2026 - 23:44',
-  },
-  {
-    id: 7,
-    nomeCliente: 'Santos',
-    refeicao: 'Hamburger',
-    preco: 29.99,
-    dataCriacao: '13/05/2026 - 23:43',
-  },
-  {
-    id: 8,
-    nomeCliente: 'Andrey',
-    refeicao: 'Hamburger',
-    preco: 29.99,
-    dataCriacao: '13/05/2026 - 23:42',
-  },
-];
-
 const ROWS_PER_PAGE = 5;
 
 const TableComponent = () => {
+  const { data } = useQuery({
+    queryKey: ['pedidos'],
+    queryFn: pedidoService.getAll,
+  });
+
+  const rows: Pedido[] = React.useMemo(() => {
+    return (
+      data?.map((pedido) => ({
+        id: pedido.id,
+        nomeCliente: pedido.nomeCliente,
+        refeicao: pedido.refeicao.descricao,
+        preco: pedido.refeicao.preco,
+        dataCriacao: pedido.dataCriacao,
+      })) || []
+    );
+  }, [data]);
+
   const [page, setPage] = React.useState(1);
 
   const totalPages = Math.ceil(rows.length / ROWS_PER_PAGE);
@@ -82,7 +44,7 @@ const TableComponent = () => {
     const start = (page - 1) * ROWS_PER_PAGE;
 
     return rows.slice(start, start + ROWS_PER_PAGE);
-  }, [page]);
+  }, [page, rows]);
 
   const start = (page - 1) * ROWS_PER_PAGE + 1;
   const end = Math.min(page * ROWS_PER_PAGE, rows.length);
@@ -117,7 +79,11 @@ const TableComponent = () => {
                           {() => {
                             const value = row[column.id as keyof typeof row];
 
-                            if (column.id === 'preco') return `R$ ${value}`;
+                            if (column.id === 'preco')
+                              return formatCurrencyBRL(value);
+
+                            if (column.id === 'dataCriacao')
+                              return formatLocalDateTime(value as string);
 
                             return value as React.ReactNode;
                           }}
