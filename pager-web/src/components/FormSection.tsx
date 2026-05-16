@@ -1,7 +1,7 @@
 import InputField from './InputField';
 import { User } from 'lucide-react';
 import SelectField from './SelectField';
-import { Button, Form } from '@heroui/react';
+import { Button, Form, toast } from '@heroui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { pedidoService } from '../service/pedido';
 import { useForm } from '@tanstack/react-form';
@@ -24,7 +24,7 @@ const pedidoDefault: PedidoPost = {
 const FormSection = () => {
   const queryClient = useQueryClient();
 
-  const { data } = useQuery({
+  const { data, isPending, isError } = useQuery({
     queryKey: ['refeicoes'],
     queryFn: pedidoService.getRefeicoes,
   });
@@ -49,6 +49,7 @@ const FormSection = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     form.handleSubmit();
+    toast.success('Pedido registrado com sucesso');
   };
 
   return (
@@ -94,7 +95,9 @@ const FormSection = () => {
                 value={field.state.value}
                 onChange={(value) => field.handleChange(value as number)}
                 label="Refeição"
-                placeholder="Selecione uma refeição"
+                placeholder={
+                  isPending || isError ? 'Aguarde...' : 'Selecione uma refeição'
+                }
                 options={data || []}
               />
               <span className="text-danger text-xs">

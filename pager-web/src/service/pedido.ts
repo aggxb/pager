@@ -1,8 +1,4 @@
-import {
-  type PedidoGet,
-  type PedidoPost,
-  type Refeicao,
-} from '../types/types';
+import { type PedidoGet, type PedidoPost, type Refeicao } from '../types/types';
 import { pagerAPI } from './api';
 
 export const pedidoService = {
