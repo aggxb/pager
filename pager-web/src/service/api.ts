@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from 'axios';
 
 export const pagerAPI = axios.create({
   baseURL: 'http://localhost:8080/api/v1',
-  headers: { 'Content-Type': 'application/json' }
-})
+  headers: { 'Content-Type': 'application/json' },
+});

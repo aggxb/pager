@@ -6,6 +6,7 @@ import { pedidoService } from '../service/pedido';
 import { useQuery } from '@tanstack/react-query';
 import { formatLocalDateTime } from '../util/dateFormatter';
 import { formatCurrencyBRL } from '../util/currencyFormatter';
+import { motion } from 'framer-motion';
 
 const columns = [
   { id: 'id', name: 'ID do Pedido' },
@@ -72,23 +73,38 @@ const TableComponent = () => {
             >
               {(row) =>
                 rows.length ? (
-                  <Table.Row>
+                  <Table.Row className="transition-all duration-400 starting:opacity-0 starting:translate-x-20">
                     <Table.Collection items={columns}>
-                      {(column) => (
-                        <Table.Cell>
-                          {() => {
-                            const value = row[column.id as keyof typeof row];
+                      {(column) => {
+                        const rowIndex = paginatedItems.indexOf(row);
 
-                            if (column.id === 'preco')
-                              return formatCurrencyBRL(value);
+                        return (
+                          <Table.Cell>
+                            <motion.div
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{
+                                duration: 0.3,
+                                delay: rowIndex * 0.175,
+                                ease: [0.25, 1, 0.5, 1],
+                              }}
+                            >
+                              {(() => {
+                                const value =
+                                  row[column.id as keyof typeof row];
 
-                            if (column.id === 'dataCriacao')
-                              return formatLocalDateTime(value as string);
+                                if (column.id === 'preco')
+                                  return formatCurrencyBRL(value);
 
-                            return value as React.ReactNode;
-                          }}
-                        </Table.Cell>
-                      )}
+                                if (column.id === 'dataCriacao')
+                                  return formatLocalDateTime(value as string);
+
+                                return value as React.ReactNode;
+                              })()}
+                            </motion.div>
+                          </Table.Cell>
+                        );
+                      }}
                     </Table.Collection>
                   </Table.Row>
                 ) : (
