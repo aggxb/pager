@@ -16,6 +16,7 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 @RestController
+@CrossOrigin("*")
 @RequestMapping("api/v1/pedidos")
 public class PedidoController {
     private final PedidoService service;
