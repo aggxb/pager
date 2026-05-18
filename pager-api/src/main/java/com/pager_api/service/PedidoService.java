@@ -7,7 +7,6 @@ import com.pager_api.enums.Refeicao;
 import com.pager_api.gateway.MqttGateway;
 import com.pager_api.mapper.PedidoMapper;
 import com.pager_api.repository.PedidoRepository;
-import com.pager_api.util.CurrencyFormatter;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,7 +42,11 @@ public class PedidoService {
 
         var pedidoSalvo = repository.save(pedido);
 
-        String mensagem = "Novo pedido: " + pedidoSalvo.getId() + " - " + pedidoSalvo.getNomeCliente() + " - " + pedidoSalvo.getRefeicao().getDescricao() + " - " + CurrencyFormatter.formatToBRL(pedidoSalvo.getRefeicao().getPreco());
+        String mensagem = pedidoSalvo.getNomeCliente() + "\n" +
+                Arrays.stream(pedidoSalvo.getRefeicao().getDescricao().split(" "))
+                        .toList()
+                        .getFirst();
+
         mqttGateway.sendToMqtt(mensagem);
 
         var pedidoResponse = mapper.toPedidoResponse(pedidoSalvo);
