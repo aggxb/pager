@@ -20,7 +20,6 @@ PubSubClient client(espClient);
 const int PIN_BUZZER = 13;
 const int PIN_LED_VERDE = 14;
 const int PIN_LED_VERMELHO = 27;
-const int PIN_MOTOR = 12;
 
 unsigned long tempoAcionamento = 0;
 bool pagerAtivo = false;
@@ -129,7 +128,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
     display.display(); 
 
     digitalWrite(PIN_BUZZER, HIGH);
-    digitalWrite(PIN_MOTOR, HIGH);
     digitalWrite(PIN_LED_VERDE, HIGH);
     digitalWrite(PIN_LED_VERMELHO, LOW);
   }
@@ -165,7 +163,6 @@ void setup() {
   display.clearDisplay();
   
   pinMode(PIN_BUZZER, OUTPUT);
-  pinMode(PIN_MOTOR, OUTPUT);
   pinMode(PIN_LED_VERDE, OUTPUT);
   pinMode(PIN_LED_VERMELHO, OUTPUT);
 
@@ -186,7 +183,6 @@ void loop() {
     if (millis() - tempoAcionamento >= TEMPO_ALERTA) {
       pagerAtivo = false;
       digitalWrite(PIN_BUZZER, LOW);
-      digitalWrite(PIN_MOTOR, LOW);
       digitalWrite(PIN_LED_VERDE, LOW);
       digitalWrite(PIN_LED_VERMELHO, HIGH);
       
