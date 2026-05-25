@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { pedidoService } from '../service/pedido';
 import { useForm } from '@tanstack/react-form';
 import z from 'zod';
+import React from 'react';
 
 const pedidoSchema = z.object({
   nomeCliente: z
@@ -22,6 +23,19 @@ const pedidoDefault: PedidoPost = {
 };
 
 const FormSection = () => {
+  const [waitingTime, setWaitingTime] = React.useState(0);
+
+  React.useEffect(() => {
+    if (waitingTime <= 0) return;
+
+    const interval = setInterval(
+      () => setWaitingTime((actual) => actual - 1),
+      1000,
+    );
+
+    return () => clearInterval(interval);
+  }, [waitingTime]);
+
   const queryClient = useQueryClient();
 
   const { data, isPending, isError } = useQuery({
@@ -35,6 +49,11 @@ const FormSection = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pedidos'] });
       queryClient.invalidateQueries({ queryKey: ['pedido'] });
+
+      toast.success('Pedido registrado com sucesso');
+
+      setWaitingTime(10);
+
       form.reset();
     },
   });
@@ -49,7 +68,6 @@ const FormSection = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     form.handleSubmit();
-    toast.success('Pedido registrado com sucesso');
   };
 
   return (
@@ -68,7 +86,7 @@ const FormSection = () => {
                 <InputField
                   id="nomeCliente"
                   label="Nome do Cliente"
-                  placeholder="Ex. Gabriel"
+                  placeholder="Insira um nome"
                   icon={User}
                   value={field.state.value}
                   onChange={({ target }) => field.handleChange(target.value)}
@@ -110,14 +128,21 @@ const FormSection = () => {
           }}
         />
       </div>
-      <Button
-        aria-label="Registrar Pedido"
-        className="place-self-center"
-        type="submit"
-        isPending={mutation.isPending}
-      >
-        {mutation.isPending ? 'Registrando...' : 'Registrar Pedido'}
-      </Button>
+      <div className="grid items-center justify-center gap-2">
+        <Button
+          aria-label="Registrar Pedido"
+          className="place-self-center"
+          type="submit"
+          isDisabled={waitingTime > 0 || mutation.isPending}
+        >
+          {mutation.isPending ? 'Registrando...' : 'Registrar Pedido'}
+        </Button>
+        {waitingTime !== 0 && (
+          <span className="text-xs text-center text-muted">
+            Disponível em: {waitingTime}s
+          </span>
+        )}
+      </div>
     </Form>
   );
 };
