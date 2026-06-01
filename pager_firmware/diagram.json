@@ -7,7 +7,6 @@
     { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 210, "left": -72, "attrs": {} },
     { "type": "wokwi-buzzer", "id": "buzzer", "top": -30, "left": 150, "attrs": { "volume": "0.1" } },
     { "type": "wokwi-led", "id": "led_verde", "top": 200, "left": 220, "attrs": { "color": "green" } },
-    { "type": "wokwi-led", "id": "led_vermelho", "top": 280, "left": 220, "attrs": { "color": "red" } },
     { "type": "board-ssd1306", "id": "oled1", "top": 450, "left": -50, "attrs": { "i2cAddress": "0x3c" } }
   ],
   "connections": [
@@ -19,9 +18,6 @@
 
     [ "bb1:g.15", "led_verde:C", "black", [ "v0" ] ],
     [ "esp:14", "led_verde:A", "green", [ "v0" ] ],
-
-    [ "bb1:g.25", "led_vermelho:C", "black", [ "v0" ] ],
-    [ "esp:27", "led_vermelho:A", "red", [ "v0" ] ],
 
     [ "bb1:v.10", "oled1:VCC", "red", [ "v0" ] ],
     [ "bb1:g.10", "oled1:GND", "black", [ "v0" ] ],

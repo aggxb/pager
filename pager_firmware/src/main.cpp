@@ -5,26 +5,46 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+// =====================
+// CONFIG OLED
+// =====================
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
-#define OLED_RESET    -1
+#define OLED_RESET -1
+
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-const char* ssid = "Wokwi-GUEST";
-const char* password = "";
+// =====================
+// WIFI / MQTT
+// =====================
+const char* ssid = "Andrey e Gabriel";
+const char* password = "andrey120";
 const char* mqtt_server = "broker.hivemq.com";
+const char* TOPICO_PAGER = "delivery/pager/command";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-const int PIN_BUZZER = 13;
-const int PIN_LED_VERDE = 14;
-const int PIN_LED_VERMELHO = 27;
+// =====================
+// PINOS
+// =====================
+const int PIN_BUZZER = 4;
+const int PIN_LED = 5;
 
-unsigned long tempoAcionamento = 0;
+// OLED pinagem padrão
+const int OLED_SDA = 21;   // D21
+const int OLED_SCL = 22;   // D22
+
+// =====================
+// CONTROLE
+// =====================
 bool pagerAtivo = false;
+unsigned long tempoAcionamento = 0;
 const unsigned long TEMPO_ALERTA = 10000;
 
+// =====================
+// FUNÇÃO: TRATAR ACENTOS
+// =====================
 String tratarAcentos(String str) {
   String resultado = "";
   for (int i = 0; i < str.length(); i++) {
@@ -57,137 +77,163 @@ String tratarAcentos(String str) {
   return resultado;
 }
 
+// =====================
+// TELA
+// =====================
 void atualizarTela(String linha1, String linha2) {
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
-  
+
   display.setTextSize(1);
   display.setCursor(0, 5);
   display.println(tratarAcentos(linha1));
-  
-  display.setTextSize(2); 
+
+  display.setTextSize(2);
   display.setCursor(0, 30);
   display.println(tratarAcentos(linha2));
-  
+
   display.display();
 }
 
-void setup_wifi() {
-  delay(10);
-  Serial.println("Conectando ao WiFi...");
-  atualizarTela("WiFi", "Conectando");
-  
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("\nWiFi conectado!");
-  atualizarTela("WiFi", "Conectado!");
+// =====================
+// ALERTA
+// =====================
+void ligarAlerta() {
+  digitalWrite(PIN_LED, HIGH);
+  tone(PIN_BUZZER, 1000);
 }
 
+void desligarAlerta() {
+  digitalWrite(PIN_LED, LOW);
+  noTone(PIN_BUZZER);
+}
+
+// =====================
+// WIFI
+// =====================
+void setup_wifi() {
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
+}
+
+// =====================
+// CALLBACK MQTT
+// =====================
 void callback(char* topic, byte* payload, unsigned int length) {
-  String msg;
-  for (int i = 0; i < length; i++) {
+  String msg = "";
+
+  for (unsigned int i = 0; i < length; i++) {
     msg += (char)payload[i];
   }
-  
-  Serial.print("Comando recebido: ");
+
+  Serial.print("Mensagem recebida: ");
   Serial.println(msg);
 
-  if (msg.length() > 0 && !pagerAtivo) {
+  if (msg.length() > 0) {
     pagerAtivo = true;
     tempoAcionamento = millis();
-    
+
     int indexQuebra = msg.indexOf('\n');
-    
+
     display.clearDisplay();
     display.setTextColor(SSD1306_WHITE);
-    
+
     display.setTextSize(1);
     display.setCursor(0, 2);
     display.println("NOVO PEDIDO");
-    
+
     if (indexQuebra != -1) {
       String nomeCliente = msg.substring(0, indexQuebra);
       String refeicao = msg.substring(indexQuebra + 1);
-      
+
       display.setTextSize(2);
-      display.setCursor(0, 16); 
+      display.setCursor(0, 16);
       display.println(tratarAcentos(nomeCliente));
-      
+
       display.setTextSize(1);
-      display.setCursor(0, 45); 
+      display.setCursor(0, 45);
       display.println(tratarAcentos(refeicao));
     } else {
       display.setTextSize(2);
       display.setCursor(0, 20);
       display.println(tratarAcentos(msg));
     }
-    
-    display.display(); 
 
-    digitalWrite(PIN_BUZZER, HIGH);
-    digitalWrite(PIN_LED_VERDE, HIGH);
-    digitalWrite(PIN_LED_VERMELHO, LOW);
+    display.display();
+
+    ligarAlerta();
   }
 }
 
+// =====================
+// MQTT
+// =====================
 void reconnect() {
   while (!client.connected()) {
-    Serial.print("Tentando conectar MQTT...");
-    atualizarTela("Servidor", "Conectando");
-    
-    String clientId = "ESP32_Pager_Wokwi_" + String(random(0xffff), HEX);
-    
+    String clientId = "ESP32_Pager_" + String(random(0xffff), HEX);
+
     if (client.connect(clientId.c_str())) {
-      Serial.println("Conectado!");
-      client.subscribe("delivery/pager/command");
-      atualizarTela("PAGER OCIOSO", "Aguardando");
+      client.subscribe(TOPICO_PAGER);
+      atualizarTela("PAGER", "Aguardando");
     } else {
-      Serial.print("Falha. Tentando em 5s...");
       delay(5000);
     }
   }
 }
 
+// =====================
+// SETUP
+// =====================
 void setup() {
   Serial.begin(115200);
-  
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println("Falha ao iniciar o OLED");
-    for(;;);
+  delay(500);
+
+  pinMode(PIN_BUZZER, OUTPUT);
+  pinMode(PIN_LED, OUTPUT);
+
+  desligarAlerta();
+
+  // OLED padrão:
+  // SDA = D21
+  // SCK/SCL = D22
+  Wire.begin(OLED_SDA, OLED_SCL);
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    while (true);
   }
 
   display.cp437(true);
   display.clearDisplay();
-  
-  pinMode(PIN_BUZZER, OUTPUT);
-  pinMode(PIN_LED_VERDE, OUTPUT);
-  pinMode(PIN_LED_VERMELHO, OUTPUT);
-
-  digitalWrite(PIN_LED_VERMELHO, HIGH);
 
   setup_wifi();
+
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
+
+  reconnect();
+
+  atualizarTela("PAGER", "Aguardando");
 }
 
+// =====================
+// LOOP
+// =====================
 void loop() {
   if (!client.connected()) {
     reconnect();
   }
+
   client.loop();
 
-  if (pagerAtivo) {
-    if (millis() - tempoAcionamento >= TEMPO_ALERTA) {
-      pagerAtivo = false;
-      digitalWrite(PIN_BUZZER, LOW);
-      digitalWrite(PIN_LED_VERDE, LOW);
-      digitalWrite(PIN_LED_VERMELHO, HIGH);
-      
-      atualizarTela("PAGER OCIOSO", "Aguardando");
-      Serial.println("Alerta finalizado.");
-    }
+  if (pagerAtivo && millis() - tempoAcionamento >= TEMPO_ALERTA) {
+    pagerAtivo = false;
+
+    desligarAlerta();
+
+    atualizarTela("PAGER", "Aguardando");
+    Serial.println("Alerta finalizado.");
   }
 }
